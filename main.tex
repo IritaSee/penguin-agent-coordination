@@ -51,14 +51,24 @@ The contributions of this paper are three-fold:
 \end{itemize}
 
 \section{The Uphill Priority Protocol}
-We define the "uphill" state of an agent based on its current reasoning depth and token accumulation.
+The UPP operates by transforming a monolithic task into a structured "topographical" journey. This section details the mechanisms of task decomposition and the introduction of the Context Gradient.
+
+\subsection{Granular Task Decomposition}
+To implement the "uphill" metaphor, a primary agent first decomposes a global task $T$ into a sequence of granular sub-tasks $t_j$, where $T = \{t_1, t_2, \dots, t_k\}$. The level of granularity $k$ is controlled by a hyperparameter $\gamma$, which dictates the maximum token budget per sub-task. This "Divide and Conquer" approach ensures that each sub-task represents a manageable "post" or checkpoint on the reasoning mountain.
+
+\subsection{Context Gradient and Altitude}
+Each sub-task $t_j$ is assigned an "altitude" $H_j$, representing the cumulative token complexity and reasoning depth required to reach that state. We introduce the \textit{Context Gradient} $\nabla C$, which measures the rate of change in token difficulty between consecutive sub-tasks:
+\begin{equation}
+\nabla C_{j, j+1} = \frac{H_{j+1} - H_j}{\Delta \tau}
+\end{equation}
+where $\Delta \tau$ represents the logical transition cost. A high $\nabla C$ indicates a "steep" reasoning path (e.g., transitioning from data retrieval to complex synthesis), signaling the system to protect the agent's momentum.
 
 \section{Mathematical Framework}
-Let $A = \{a_1, a_2, \dots, a_n\}$ be a set of agents. For each agent $a_i$, we define a "Slope Index" $S_i$ as:
+Let $A = \{a_1, a_2, \dots, a_n\}$ be a set of agents. For each agent $a_i$ working on sub-task $t_j$, we define the Slope Index $S_i$ as a function of its current altitude and the local gradient:
 \begin{equation}
-S_i = \alpha \cdot D_i + \beta \cdot \frac{T_{in}}{T_{out}}
+S_i(t_j) = \alpha \cdot H_j + \beta \cdot \nabla C_{j-1, j} + \sigma \cdot \Gamma_i
 \end{equation}
-where $D_i$ is the reasoning depth (e.g., number of CoT steps), $T_{in}$ is the input tokens, and $T_{out}$ is the expected output tokens. The UPP grants priority to the agent with the highest $S_i$.
+where $H_j$ is the current altitude (token accumulation), $\nabla C$ is the context gradient, and $\Gamma_i$ is the "Thinking Budget" allocated to agent $a_i$. The parameters $\alpha, \beta, \sigma$ are weights that balance the importance of current state versus the difficulty of the upcoming transition.
 
 \section{Conclusion}
 The UPP provides a biologically-inspired method to reduce the cognitive and computational cost of multi-agent collaboration.

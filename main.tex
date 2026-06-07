@@ -54,21 +54,41 @@ The contributions of this paper are three-fold:
 The UPP operates by transforming a monolithic task into a structured "topographical" journey. This section details the mechanisms of task decomposition and the introduction of the Context Gradient.
 
 \subsection{Granular Task Decomposition}
-To implement the "uphill" metaphor, a primary agent first decomposes a global task $T$ into a sequence of granular sub-tasks $t_j$, where $T = \{t_1, t_2, \dots, t_k\}$. The level of granularity $k$ is controlled by a hyperparameter $\gamma$, which dictates the maximum token budget per sub-task. This "Divide and Conquer" approach ensures that each sub-task represents a manageable "post" or checkpoint on the reasoning mountain.
+To implement the "uphill" metaphor, a primary agent first decomposes a global task $T$ into a sequence of granular sub-tasks $t_j$, where $T = \{t_1, t_2, \dots, t_k\}$. The level of granularity $k$ is controlled by a granularity factor $\gamma$:
+\begin{equation}
+T \xrightarrow{\gamma} \{t_1, t_2, \dots, t_k\}
+\end{equation}
+This "Divide and Conquer" approach ensures that each sub-task represents a manageable "post" or checkpoint on the reasoning mountain.
 
-\subsection{Context Gradient and Altitude}
-Each sub-task $t_j$ is assigned an "altitude" $H_j$, representing the cumulative token complexity and reasoning depth required to reach that state. We introduce the \textit{Context Gradient} $\nabla C$, which measures the rate of change in token difficulty between consecutive sub-tasks:
+\subsection{Context Altitude and Gradient}
+Each sub-task $t_j$ is assigned an "altitude" $H_j$, representing the cumulative token complexity and reasoning depth required to reach that state:
+\begin{equation}
+H_j = \sum_{m=1}^{j} (T_{in, m} + \delta \cdot D_m)
+\end{equation}
+where $T_{in, m}$ is the input token count for sub-task $m$, $D_m$ is the reasoning depth, and $\delta$ is a weighting coefficient for logical complexity.
+
+We introduce the \textit{Context Gradient} $\nabla C$, which measures the rate of change in token difficulty between consecutive sub-tasks:
 \begin{equation}
 \nabla C_{j, j+1} = \frac{H_{j+1} - H_j}{\Delta \tau}
 \end{equation}
-where $\Delta \tau$ represents the logical transition cost. A high $\nabla C$ indicates a "steep" reasoning path (e.g., transitioning from data retrieval to complex synthesis), signaling the system to protect the agent's momentum.
+where $\Delta \tau$ represents the logical transition cost. A high $\nabla C$ indicates a "steep" reasoning path, signaling the system to protect the agent's momentum.
 
 \section{Mathematical Framework}
-Let $A = \{a_1, a_2, \dots, a_n\}$ be a set of agents. For each agent $a_i$ working on sub-task $t_j$, we define the Slope Index $S_i$ as a function of its current altitude and the local gradient:
+The core of UPP lies in quantifying the "momentum" of an agent's reasoning process.
+
+\subsection{Context Momentum}
+We define the Context Momentum $M_i$ for an agent $a_i$ at sub-task $t_j$ as the product of its current altitude and the local gradient:
 \begin{equation}
-S_i(t_j) = \alpha \cdot H_j + \beta \cdot \nabla C_{j-1, j} + \sigma \cdot \Gamma_i
+M_i = H_j \times \nabla C_{j-1, j}
 \end{equation}
-where $H_j$ is the current altitude (token accumulation), $\nabla C$ is the context gradient, and $\Gamma_i$ is the "Thinking Budget" allocated to agent $a_i$. The parameters $\alpha, \beta, \sigma$ are weights that balance the importance of current state versus the difficulty of the upcoming transition.
+This formulation captures the physical intuition that an agent deep in a complex reasoning chain (high $H_j$) and currently facing a steep increase in difficulty (high $\nabla C$) possesses the highest momentum and, consequently, the highest "restart penalty" if interrupted.
+
+\subsection{Slope Index and Priority}
+Let $A = \{a_1, a_2, \dots, a_n\}$ be a set of agents. For each agent $a_i$, we define the Slope Index $S_i$ as:
+\begin{equation}
+S_i = \alpha \cdot M_i + \beta \cdot \Gamma_i
+\end{equation}
+where $M_i$ is the Context Momentum and $\Gamma_i$ is the remaining "Thinking Budget" (token allocation). The parameters $\alpha$ and $\beta$ are constants that balance state preservation against budget constraints. The UPP grants non-preemptive priority to the agent with the highest $S_i$.
 
 \section{Conclusion}
 The UPP provides a biologically-inspired method to reduce the cognitive and computational cost of multi-agent collaboration.

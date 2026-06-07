@@ -27,18 +27,38 @@ Bali, Indonesia}
 \maketitle
 
 \begin{abstract}
-This paper introduces the Uphill Priority Protocol (UPP), a coordination framework for multi-agent systems inspired by the energy-efficient trail etiquette of penguins. In biological systems, penguins ascending a slope are granted the right of way to minimize the energy cost of restarting movement against gravity. We translate this principle into the domain of Agentic AI, where agents with higher computational load or reasoning depth are prioritized to prevent context-switching costs and token wastage.
+This paper introduces the Uphill Priority Protocol (UPP), a biologically-inspired meta-heuristic coordination framework for multi-agent systems (MAS). In nature, specifically among penguin colonies navigating steep Antarctic terrain, individuals ascending a slope are granted the right of way by those descending. This "Uphill Priority" rule is an evolutionary adaptation to minimize the metabolic cost of restarting movement against gravity. We translate this principle into the domain of Agentic AI, where "uphill" agents—those engaged in deep reasoning or high-token-density tasks—are granted non-preemptive priority. By protecting the "context momentum" of these agents, UPP minimizes context-switching overhead, reduces token wastage, and optimizes system-wide computational efficiency.
 \end{abstract}
 
 \begin{IEEEkeywords}
-Multi-agent systems, Agentic AI, Energy efficiency, Coordination protocols, Token optimization.
+Multi-agent systems, Agentic AI, Meta-heuristic algorithms, Energy efficiency, Token optimization, Context momentum.
 \end{IEEEkeywords}
 
 \section{Introduction}
-As Agentic AI systems become more prevalent, the coordination of multiple agents working on shared tasks becomes a critical bottleneck. Traditional locking mechanisms or simple priority queues often ignore the "momentum" of an agent's reasoning process.
+The rapid evolution of Large Language Model (LLM) based agents has shifted the paradigm of artificial intelligence from static inference to dynamic, multi-agent collaboration. In these Agentic AI ecosystems, complex tasks are decomposed into sub-tasks handled by specialized agents. However, as the number of agents increases, the system faces a critical challenge: coordination efficiency. Traditional scheduling algorithms, such as Round Robin or First-Come-First-Served (FCFS), often fail to account for the "internal state" or "reasoning momentum" of an agent.
+
+In the context of LLM agents, "momentum" is not a physical quantity but a computational one. When an agent is deep within a Chain-of-Thought (CoT) process or managing a large Key-Value (KV) cache, an interruption or preemption incurs a significant "restart penalty." This penalty manifests as redundant token consumption (re-reading context), increased latency, and potential logic fragmentation. We term this phenomenon "Context Fragmentation."
+
+To address this, we look toward biological systems for inspiration. Meta-heuristic algorithms often derive their efficiency from mimicking natural processes that have been optimized over millennia. One such observation comes from the trail etiquette of penguins in the Antarctic. Penguins traveling uphill are given the right of way by those traveling downhill. This is because the energy required for a penguin to stop and restart its ascent is significantly higher than the energy required for a descending penguin to pause.
+
+We propose the Uphill Priority Protocol (UPP) as a meta-heuristic for multi-agent coordination. In UPP, we define the "uphill" state of an agent based on its current reasoning depth, the complexity of its prompt-to-completion ratio, and its accumulated token count. By prioritizing these "uphill" agents, the system ensures that the most computationally "expensive" reasoning chains are completed without interruption, thereby maximizing the "Context Momentum" and minimizing the overall energy (token) expenditure of the system.
+
+The contributions of this paper are three-fold:
+\begin{itemize}
+    \item We formalize the concept of "Context Momentum" in Agentic AI systems.
+    \item We introduce the Uphill Priority Protocol (UPP), a biologically-inspired meta-heuristic for agent coordination.
+    \item We provide a mathematical framework for quantifying the "uphill" state and the resulting efficiency gains in token-constrained environments.
+\end{itemize}
 
 \section{The Uphill Priority Protocol}
 We define the "uphill" state of an agent based on its current reasoning depth and token accumulation.
+
+\section{Mathematical Framework}
+Let $A = \{a_1, a_2, \dots, a_n\}$ be a set of agents. For each agent $a_i$, we define a "Slope Index" $S_i$ as:
+\begin{equation}
+S_i = \alpha \cdot D_i + \beta \cdot \frac{T_{in}}{T_{out}}
+\end{equation}
+where $D_i$ is the reasoning depth (e.g., number of CoT steps), $T_{in}$ is the input tokens, and $T_{out}$ is the expected output tokens. The UPP grants priority to the agent with the highest $S_i$.
 
 \section{Conclusion}
 The UPP provides a biologically-inspired method to reduce the cognitive and computational cost of multi-agent collaboration.
